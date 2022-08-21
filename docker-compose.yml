@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  app:
+    image: cosmtrek/air:v1.40.4
+    container_name: shopify_go
+    working_dir: /shopify_go
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/shopify_go
+    depends_on:
+      - pg
+      
+  pg:
+    image: postgres:14.5-bullseye
+    container_name: shopify_pg
+    restart: always
+    environment:
+      POSTGRES_USER: hamid
+      POSTGRES_PASSWORD: heidari
+      POSTGRES_DB: postgres
+    ports:
+      - 5432:5432
+    volumes: 
+       - ./pgdata:/var/lib/postgresql
+
+  adminer:
+      image: adminer:4.8.1-standalone
+      restart: always
+      environment:
+        ADMINER_DEFAULT_SERVER: shopify_pg
+      ports:
+        - 8081:8080
+      depends_on: 
+        - pg
+  
