@@ -1,8 +1,8 @@
 package main
 
 import (
-	"shop/src/db"
-	"shop/src/api"
+	"shop/src/pkg/db"
+	"shop/src/pkg/api"
 
 	// routes "shop/src/routes"
 	"log"

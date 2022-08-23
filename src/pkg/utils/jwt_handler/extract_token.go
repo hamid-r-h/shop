@@ -11,7 +11,7 @@ func ExtractTokenData(token string) (string, string) {
 	claims := jwt.MapClaims{}
 	jwt.ParseWithClaims(token, claims, keyFunc)
 	log.Println(claims)
-	name, ok := claims["username"].(string)
+	name, ok := claims["id"].(string)
 	if !ok {
 		return name, "x"
 	}

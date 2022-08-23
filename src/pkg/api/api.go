@@ -1,8 +1,8 @@
 package api
 
 import (
-	"shop/src/routes/auth"
-	"shop/src/routes/product"
+	"shop/src/pkg/routes/auth"
+	"shop/src/pkg/routes/product"
 	"github.com/gofiber/fiber/v2"
 )
 
