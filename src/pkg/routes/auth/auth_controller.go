@@ -30,10 +30,6 @@ func Register(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err)
 	}
 
-	if err := db.Database.Db.First(&user, "username = ?", user.Username).Error; err == nil {
-		return c.Status(400).JSON(err)
-	}
-
 	password, err := hash.HashPassword(user.Password)
 	user.Password = password
 	if err != nil {
@@ -51,7 +47,9 @@ func Register(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&cookie)
-	db.Database.Db.Create(&user)
+	if err := db.Database.Db.Create(&user); err.Error != nil {
+		return c.Status(200).JSON("already taken")
+	}
 
 	return c.Status(200).JSON(user)
 

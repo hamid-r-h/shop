@@ -11,4 +11,6 @@ func SetupRoutes(app *fiber.App) {
 	routes.Post("/user/register", auth.Register)
 	routes.Post("/user/login", auth.Login)
 	routes.Post("/product/addproduct",product.AddProduct)
+	routes.Post("/product/addtocart",product.AddToCart)
+
 }

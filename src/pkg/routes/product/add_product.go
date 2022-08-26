@@ -10,8 +10,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
 )
-const key = "hamid123456789"
 
+const key = "hamid123456789"
 
 func AddProduct(c *fiber.Ctx) error {
 
@@ -26,10 +26,10 @@ func AddProduct(c *fiber.Ctx) error {
 		return c.Status(400).JSON("input in correct format")
 	}
 
-	token := c.Cookies("jwt")
+	cookie := c.Cookies("jwt")
 	claims := jwt.MapClaims{}
-	tk, err := jwt.ParseWithClaims(token, claims, keyFunc)
-	claim := tk.Claims.(jwt.MapClaims)
+	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
+	claim := token.Claims.(jwt.MapClaims)
 	id := claim["id"]
 
 	if err := db.Database.Db.First(&user, "ID = ? And has_access = ? ", id, true).Error; err != nil {
@@ -44,8 +44,9 @@ func AddProduct(c *fiber.Ctx) error {
 		return c.Status(400).JSON(product.Category)
 	}
 	product.UserID = user.ID
-	db.Database.Db.Create(&product)
-
+	if err := db.Database.Db.Create(&product).Error; err != nil {
+		return c.Status(400).JSON(err)
+	}
 	return c.Status(200).JSON(product)
 
 }

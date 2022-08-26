@@ -6,9 +6,10 @@ import (
 
 type Product struct {
 	gorm.Model
-	Category    string `json:"category"  valid:"required"`
-	SubCategory string `json:"subcategory"  valid:"required"`
-	Name        string `json:"name"   valid:"required"`
-	Price       int    `json:"price"  valid:"required"`
-	UserID uint
+	Category    string ` valid:"required"`
+	SubCategory string ` valid:"required"`
+	Name        string ` valid:"required" gorm:"unique"   `
+	Price       int    ` valid:"required"`
+	Number      int	   ` valid:"required"`
+	UserID      uint
 }
