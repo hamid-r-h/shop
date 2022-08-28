@@ -1,4 +1,4 @@
-package product
+package cart
 
 import (
 	// "shop/src/db"
@@ -14,52 +14,54 @@ import (
 )
 
 type Products struct {
-	Name string
+	Name   string
 	Number int
 }
 
+const key = "secret"
+
 func AddToCart(c *fiber.Ctx) error {
 
-	db.Database.Db.SetupJoinTable(&models.User{}, "Product", &models.UserProduct{})
-	var product_input Products
-	var product models.Product
-	var user_products models.UserProduct
+	var get_detail Products
+	var products models.Product
 	var user models.User
-	if err := c.BodyParser(&product_input); err != nil {
+	var user_products models.UserProduct
+	if err := c.BodyParser(&get_detail); err != nil {
 		return c.Status(400).JSON(err)
 	}
 	log.Println()
 	cookie := c.Cookies("jwt")
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
-	if err != nil {
-
-	}
 
 	claim := token.Claims.(jwt.MapClaims)
 	id := claim["id"]
+	if err != nil {
+
+	}
 
 	if err := db.Database.Db.First(&user, "ID = ?", id).Error; err != nil {
 		return c.Status(400).JSON("first login")
 	}
 
-	if err := db.Database.Db.First(&product, "name = ? And number >= ?", product_input.Name, product_input.Number).Error; err != nil {
-		return c.Status(400).JSON("the product is not available")
+	if err := db.Database.Db.First(&products, "name = ? And number >= ?", get_detail.Name, get_detail.Number).Error; err != nil {
+		return c.Status(400).JSON(err)
 	}
 
-	if err:=db.Database.Db.Find(&user_products,"user_id = ? And product_id = ?",id,product.ID).Error; err==nil{
-		return c.Status(400).JSON("this product was added to the cart")
+	products.Number -= get_detail.Number
+	db.Database.Db.Save(&products)
+	tmp_product := user.Products
+	tmp_product = append(tmp_product, products)
+	user.Products = tmp_product
+	db.Database.Db.Save(&user)
+	if err := db.Database.Db.Find(&user_products, "user_id = ? And product_id = ?", id, products.ID).Error; err != nil {
+		return c.Status(400).JSON(err)
 	}
+	user_products.Number = get_detail.Number
+	db.Database.Db.Save(&user_products)
+	GetAllUsers(db.Database.Db)
 
-
-	link := models.UserProduct{UserID: int(user.ID), ProductID: int(product.ID), Number:product_input.Number}
-	db.Database.Db.Create(&link)
-
-	product.Number-=product_input.Number
-	db.Database.Db.Save(&product)
-	users, err := GetAllUsers(db.Database.Db)
-
-	return c.Status(200).JSON(users)
+	return c.Status(200).JSON(user_products)
 
 }
 func GetAllUsers(db *gorm.DB) ([]models.User, error) {
@@ -71,4 +73,7 @@ func GetAllProduct(db *gorm.DB) ([]models.Product, error) {
 	var products []models.Product
 	err := db.Model(&models.Product{}).Preload("Users").Find(&products).Error
 	return products, err
+}
+func keyFunc(*jwt.Token) (interface{}, error) {
+	return []byte(key), nil
 }

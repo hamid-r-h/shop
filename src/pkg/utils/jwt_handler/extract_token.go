@@ -1,23 +1,25 @@
 package jwt_handler
 
-import (
-	"log"
-	"github.com/golang-jwt/jwt/v4"
-)
+// import (
+// 	"log"
 
-const key = "hamid123456789"
+// 	"github.com/golang-jwt/jwt/v4"
+// )
 
-func ExtractTokenData(token string) (string, string) {
-	claims := jwt.MapClaims{}
-	jwt.ParseWithClaims(token, claims, keyFunc)
-	log.Println(claims)
-	name, ok := claims["id"].(string)
-	if !ok {
-		return name, "x"
-	}
-	return name, ""
-}
+// const key = "hamid123456789"
 
-func keyFunc(*jwt.Token) (interface{}, error) {
-	return []byte(key), nil
-}
+// func ExtractTokenData(cookie interface{}) (interface{}, string) {
+// 	claims := jwt.MapClaims{}
+// 	token, err := jwt.ParseWithClaims(cookie, claims,keyFunc)
+// 	log.Println(err)
+// 	if err != nil {
+// 		return nil,"error"
+// 	}
+// 	claim := token.Claims.(jwt.MapClaims)
+// 	id := claim["id"]
+// 	return id,""
+// }
+
+// func keyFunc(*jwt.Token) (interface{}, error) {
+// 	return []byte(key), nil
+// }

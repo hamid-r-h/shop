@@ -1,8 +1,6 @@
 package product
 
 import (
-	// "shop/src/db"
-	// "shop/src/jwt_handler"
 	"shop/src/pkg/db"
 	"shop/src/pkg/models"
 

@@ -1,8 +1,9 @@
 package main
 
 import (
-	"shop/src/pkg/db"
 	"shop/src/pkg/api"
+	"shop/src/pkg/db"
+
 
 	// routes "shop/src/routes"
 	"log"
@@ -13,6 +14,7 @@ import (
 func main() {
 	db.ConnectDb()
 	app := fiber.New()
+
 	api.SetupRoutes(app)
 	log.Fatal(app.Listen(":3000"))
 }
