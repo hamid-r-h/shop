@@ -19,10 +19,10 @@ func SetupRoutes(app *fiber.App) {
 	private.Use(jwt_handler.SecureAuth())
 	private.Post("/cart/add", cart.AddToCart)
 	private.Get("/cart/get", cart.GetCart)
-	private.Delete("/cart/delete/:id", cart.DeleteCart)
+	private.Delete("/cart/delete/:id", cart.DeleteFromCart)
 	private.Put("/cart/edit/:productid/:number", cart.EditCart)
 	private.Post("/product/addproduct", product.AddProduct)
 	private.Put("/product/addfavourite/:productid",favourite.AddToFavourite)
-	private.Delete("/product/addfavourite/:productid",favourite.AddToFavourite)
+	private.Delete("/product/removefavourite/:productid",favourite.RemoveFromFavourite)
 
 }

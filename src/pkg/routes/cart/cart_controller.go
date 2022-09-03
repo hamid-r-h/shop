@@ -62,22 +62,9 @@ func AddToCart(c *fiber.Ctx) error {
 	return c.Status(200).JSON(user_products)
 
 }
-func GetAllUsers(db *gorm.DB) ([]models.User, error) {
-	var users []models.User
-	err := db.Model(&models.User{}).Preload("Products").Find(&users).Error
-	return users, err
-}
-func GetAllProduct(db *gorm.DB) ([]models.Product, error) {
-	var products []models.Product
-	err := db.Model(&models.Product{}).Preload("Users").Find(&products).Error
-	return products, err
-}
-func keyFunc(*jwt.Token) (interface{}, error) {
-	return []byte(key), nil
-}
 
 
-func DeleteCart(c *fiber.Ctx) error {
+func DeleteFromCart(c *fiber.Ctx) error {
 
 	var products models.Product
 	var user_products models.UserProduct
@@ -181,4 +168,20 @@ func GetCart(c *fiber.Ctx) error {
 	GetAllProduct(db.Database.Db)
 	return c.Status(200).JSON(user.Products)
 
+}
+
+
+
+func GetAllUsers(db *gorm.DB) ([]models.User, error) {
+	var users []models.User
+	err := db.Model(&models.User{}).Preload("Products").Find(&users).Error
+	return users, err
+}
+func GetAllProduct(db *gorm.DB) ([]models.Product, error) {
+	var products []models.Product
+	err := db.Model(&models.Product{}).Preload("Users").Find(&products).Error
+	return products, err
+}
+func keyFunc(*jwt.Token) (interface{}, error) {
+	return []byte(key), nil
 }
