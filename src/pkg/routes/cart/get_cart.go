@@ -37,6 +37,6 @@ func GetCart(c *fiber.Ctx) error {
 		return c.Status(400).JSON("ypu have not product")
 	}
 	GetAllProduct(db.Database.Db)
-	return c.Status(200).JSON(user)
+	return c.Status(200).JSON(user.Products)
 
 }
