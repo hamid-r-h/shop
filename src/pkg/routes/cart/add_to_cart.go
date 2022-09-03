@@ -1,8 +1,7 @@
 package cart
 
 import (
-	// "shop/src/db"
-	// "shop/src/jwt_handler"
+
 	"log"
 	"shop/src/pkg/db"
 	"shop/src/pkg/models"
