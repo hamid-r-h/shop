@@ -15,6 +15,8 @@ func SetupRoutes(app *fiber.App) {
 	routes := app.Group("/api")
 	routes.Post("/user/register", auth.Register)
 	routes.Post("/user/login", auth.Login)
+	routes.Get("/product/getall",product.GetAllProduct)
+	
 	private := routes.Group("/private")
 	private.Use(jwt_handler.SecureAuth())
 	private.Post("/cart/add", cart.AddToCart)

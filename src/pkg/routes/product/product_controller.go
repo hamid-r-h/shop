@@ -51,3 +51,20 @@ func AddProduct(c *fiber.Ctx) error {
 func keyFunc(*jwt.Token) (interface{}, error) {
 	return []byte(key), nil
 }
+
+
+
+func GetAllProduct(c *fiber.Ctx) error  {
+	var products []models.Product
+	if err:=db.Database.Db.Find(&products);err!=nil{
+		c.Status(400).JSON(err)
+	}
+	return c.Status(400).JSON(products)
+}
+
+// func GetCategory(c *fiber.Ctx) error {
+
+
+
+// }
+

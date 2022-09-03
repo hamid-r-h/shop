@@ -43,7 +43,7 @@ func Register(c *fiber.Ctx) error {
 		Name:     "jwt",
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24),
-		HTTPOnly: true,
+		HTTPOnly: false,
 	}
 
 	c.Cookie(&cookie)
@@ -82,7 +82,7 @@ func Login(c *fiber.Ctx) error {
 		Name:     "jwt",
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24),
-		HTTPOnly: true,
+		HTTPOnly: false,
 	}
 
 	c.Cookie(&cookie)
