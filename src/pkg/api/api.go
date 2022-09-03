@@ -17,10 +17,12 @@ func SetupRoutes(app *fiber.App) {
 	routes.Post("/user/login", auth.Login)
 	private := routes.Group("/private")
 	private.Use(jwt_handler.SecureAuth())
-	private.Post("/product/addproduct", product.AddProduct)
 	private.Post("/cart/add", cart.AddToCart)
 	private.Get("/cart/get", cart.GetCart)
 	private.Delete("/cart/delete/:id", cart.DeleteCart)
 	private.Put("/cart/edit/:productid/:number", cart.EditCart)
+	private.Post("/product/addproduct", product.AddProduct)
 	private.Put("/product/addfavourite/:productid",favourite.AddToFavourite)
+	private.Delete("/product/addfavourite/:productid",favourite.AddToFavourite)
+
 }
