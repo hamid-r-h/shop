@@ -5,7 +5,6 @@ import (
 	"shop/src/pkg/db"
 
 
-	// routes "shop/src/routes"
 	"log"
 
 	"github.com/gofiber/fiber/v2"

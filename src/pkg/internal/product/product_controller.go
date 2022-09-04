@@ -52,19 +52,29 @@ func keyFunc(*jwt.Token) (interface{}, error) {
 	return []byte(key), nil
 }
 
-
-
-func GetAllProduct(c *fiber.Ctx) error  {
+func GetAllProduct(c *fiber.Ctx) error {
 	var products []models.Product
-	if err:=db.Database.Db.Find(&products);err!=nil{
+	if err := db.Database.Db.Find(&products); err != nil {
 		c.Status(400).JSON(err)
 	}
-	return c.Status(400).JSON(products)
+	return c.Status(200).JSON(products)
 }
 
-// func GetCategory(c *fiber.Ctx) error {
-
-
-
-// }
+func GetByCategory(c *fiber.Ctx) error {
+	category := c.Params("category")
+	var products []models.Product
+	if err := db.Database.Db.Find(&products, "category = ?", category).Error; err != nil {
+		return c.Status(400).JSON(err)
+	}
+	return c.Status(200).JSON(products)
+}
+func GetBySubCategory(c *fiber.Ctx) error {
+	category := c.Params("category")
+	subcategory := c.Params("subcategory")
+	var products []models.Product
+	if err := db.Database.Db.Find(&products, "category = ? And sub_category = ?", category, subcategory).Error; err != nil {
+		return c.Status(400).JSON("err")
+	}
+	return c.Status(200).JSON(products)
+}
 

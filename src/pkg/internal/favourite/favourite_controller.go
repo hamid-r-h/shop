@@ -10,7 +10,6 @@ import (
 
 const key = "secret"
 
-
 func AddToFavourite(c *fiber.Ctx) error {
 
 	var products models.Product
@@ -67,7 +66,6 @@ func RemoveFromFavourite(c *fiber.Ctx) error {
 	if err := db.Database.Db.First(&products, "ID = ?", product_id).Error; err != nil {
 		return c.Status(400).JSON(err)
 	}
-
 
 	return c.Status(200).JSON(user)
 

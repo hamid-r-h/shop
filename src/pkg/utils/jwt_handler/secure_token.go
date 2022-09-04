@@ -1,6 +1,8 @@
 package jwt_handler
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
 )
@@ -8,19 +10,20 @@ import (
 // SecureAuth returns a middleware which secures all the private routes
 func SecureAuth() fiber.Handler {
 	return func(c *fiber.Ctx) error {
-		accessToken := c.Cookies("jwt")
+		accessToken := c.Cookies("access")
 		claims := jwt.MapClaims{}
 
 		token, err := jwt.ParseWithClaims(accessToken, claims,
 			func(token *jwt.Token) (interface{}, error) {
 				return []byte("secret"), nil
 			})
+		fmt.Println(token)
 
 		if !token.Valid {
 			if ve, ok := err.(*jwt.ValidationError); ok {
 				if ve.Errors&jwt.ValidationErrorMalformed != 0 {
 					// this is not even a token, we should delete the cookies here
-					c.ClearCookie("jwt", "refresh_token")
+					c.ClearCookie("access", "refresh_token")
 					return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 						"message": "forbidden",
 					})
@@ -31,7 +34,7 @@ func SecureAuth() fiber.Handler {
 					})
 				} else {
 					// cannot handle this token
-					c.ClearCookie("access_token", "refresh_token")
+					c.ClearCookie("access", "refresh_token")
 					return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 						"message": "forbidden",
 					})

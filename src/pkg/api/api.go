@@ -1,10 +1,10 @@
 package api
 
 import (
-	"shop/src/pkg/routes/auth"
-	"shop/src/pkg/routes/favourite"
-	"shop/src/pkg/routes/cart"
-	"shop/src/pkg/routes/product"
+	"shop/src/pkg/internal/auth"
+	"shop/src/pkg/internal/cart"
+	"shop/src/pkg/internal/favourite"
+	"shop/src/pkg/internal/product"
 	"shop/src/pkg/utils/jwt_handler"
 
 	"github.com/gofiber/fiber/v2"
@@ -12,19 +12,23 @@ import (
 
 func SetupRoutes(app *fiber.App) {
 
-	routes := app.Group("/api")
-	routes.Post("/user/register", auth.Register)
-	routes.Post("/user/login", auth.Login)
-	routes.Get("/product/getall",product.GetAllProduct)
-	
-	private := routes.Group("/private")
+	internal := app.Group("/api")
+	internal.Post("/user/register", auth.Register)
+	internal.Post("/user/login", auth.Login)
+	internal.Get("/product/getall", product.GetAllProduct)
+	internal.Get("/product/:category", product.GetByCategory)
+	internal.Get("/product/:category/:subcategory",product.GetBySubCategory)
+
+	private := internal.Group("/private")
 	private.Use(jwt_handler.SecureAuth())
-	private.Post("/cart/add", cart.AddToCart)
-	private.Get("/cart/get", cart.GetCart)
-	private.Delete("/cart/delete/:id", cart.DeleteFromCart)
-	private.Put("/cart/edit/:productid/:number", cart.EditCart)
-	private.Post("/product/addproduct", product.AddProduct)
-	private.Put("/product/addfavourite/:productid",favourite.AddToFavourite)
-	private.Delete("/product/removefavourite/:productid",favourite.RemoveFromFavourite)
+	private_cart := private.Group("/cart")
+	private_cart.Post("/add", cart.AddToCart)
+	private_cart.Get("/get", cart.GetCart)
+	private_cart.Delete("/delete/:id", cart.DeleteFromCart)
+	private_cart.Put("/edit/:productid/:number", cart.EditCart)
+	private_product := private.Group("product")
+	private_product.Post("/addproduct", product.AddProduct)
+	private_product.Put("/addfavourite/:productid", favourite.AddToFavourite)
+	private_product.Delete("/removefavourite/:productid", favourite.RemoveFromFavourite)
 
 }

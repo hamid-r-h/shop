@@ -40,7 +40,7 @@ func Register(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err)
 	}
 	cookie := fiber.Cookie{
-		Name:     "jwt",
+		Name:     "access",
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24),
 		HTTPOnly: false,
@@ -79,7 +79,7 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	cookie := fiber.Cookie{
-		Name:     "jwt",
+		Name:     "access",
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24),
 		HTTPOnly: false,

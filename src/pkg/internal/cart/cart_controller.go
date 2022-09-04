@@ -28,7 +28,7 @@ func AddToCart(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err)
 	}
 	log.Println()
-	cookie := c.Cookies("jwt")
+	cookie := c.Cookies("access")
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
 
@@ -38,7 +38,7 @@ func AddToCart(c *fiber.Ctx) error {
 
 	}
 
-	if err := db.Database.Db.First(&user, "ID = ?", id).Error; err != nil {
+	if tx := db.Database.Db.First(&user, "ID = ?", id); tx.RowsAffected == 0 {
 		return c.Status(400).JSON("first login")
 	}
 
@@ -63,7 +63,6 @@ func AddToCart(c *fiber.Ctx) error {
 
 }
 
-
 func DeleteFromCart(c *fiber.Ctx) error {
 
 	var products models.Product
@@ -71,7 +70,7 @@ func DeleteFromCart(c *fiber.Ctx) error {
 	var user models.User
 
 	product_id, err := c.ParamsInt("id")
-	cookie := c.Cookies("jwt")
+	cookie := c.Cookies("access")
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
 	if err != nil {
@@ -96,8 +95,6 @@ func DeleteFromCart(c *fiber.Ctx) error {
 
 }
 
-
-
 func EditCart(c *fiber.Ctx) error {
 
 	var products models.Product
@@ -111,7 +108,7 @@ func EditCart(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err)
 	}
 
-	cookie := c.Cookies("jwt")
+	cookie := c.Cookies("access")
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
 	if err != nil {
@@ -137,15 +134,13 @@ func EditCart(c *fiber.Ctx) error {
 
 }
 
-
-
 func GetCart(c *fiber.Ctx) error {
 
 	var user_products models.UserProduct
 	var user models.User
 
 	log.Println()
-	cookie := c.Cookies("jwt")
+	cookie := c.Cookies("access")
 	claims := jwt.MapClaims{}
 	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
 	if err != nil {
@@ -170,18 +165,18 @@ func GetCart(c *fiber.Ctx) error {
 
 }
 
-
-
 func GetAllUsers(db *gorm.DB) ([]models.User, error) {
 	var users []models.User
 	err := db.Model(&models.User{}).Preload("Products").Find(&users).Error
 	return users, err
 }
+
 func GetAllProduct(db *gorm.DB) ([]models.Product, error) {
 	var products []models.Product
 	err := db.Model(&models.Product{}).Preload("Users").Find(&products).Error
 	return products, err
 }
+
 func keyFunc(*jwt.Token) (interface{}, error) {
 	return []byte(key), nil
 }
