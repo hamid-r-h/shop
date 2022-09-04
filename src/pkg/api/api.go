@@ -30,5 +30,5 @@ func SetupRoutes(app *fiber.App) {
 	private_product.Post("/addproduct", product.AddProduct)
 	private_product.Put("/addfavourite/:productid", favourite.AddToFavourite)
 	private_product.Delete("/removefavourite/:productid", favourite.RemoveFromFavourite)
-
+	
 }
