@@ -16,10 +16,12 @@ func SetupRoutes(app *fiber.App) {
 	internal.Post("/user/register", auth.Register)
 	internal.Post("/user/login", auth.Login)
 	internal.Get("/product/getall", product.GetAllProduct)
+	internal.Get("/product/getname", product.GetByName)
 	internal.Get("/product/:category", product.GetByCategory)
-	internal.Get("/product/:category/:subcategory",product.GetBySubCategory)
+	internal.Get("/product/:category/:subcategory", product.GetBySubCategory)
 
 	private := internal.Group("/private")
+	private.Put("", jwt_handler.VerifyRefreshToken)
 	private.Use(jwt_handler.SecureAuth())
 	private_cart := private.Group("/cart")
 	private_cart.Post("/add", cart.AddToCart)
@@ -30,5 +32,5 @@ func SetupRoutes(app *fiber.App) {
 	private_product.Post("/addproduct", product.AddProduct)
 	private_product.Put("/addfavourite/:productid", favourite.AddToFavourite)
 	private_product.Delete("/removefavourite/:productid", favourite.RemoveFromFavourite)
-	
+
 }

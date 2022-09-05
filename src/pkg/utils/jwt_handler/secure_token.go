@@ -2,6 +2,8 @@ package jwt_handler
 
 import (
 	"fmt"
+	"shop/src/pkg/db"
+	"shop/src/pkg/models"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt"
@@ -19,11 +21,14 @@ func SecureAuth() fiber.Handler {
 			})
 		fmt.Println(token)
 
+		if err !=nil{
+			return c.Status(400).JSON("unathorized")
+		}
 		if !token.Valid {
 			if ve, ok := err.(*jwt.ValidationError); ok {
 				if ve.Errors&jwt.ValidationErrorMalformed != 0 {
 					// this is not even a token, we should delete the cookies here
-					c.ClearCookie("access", "refresh_token")
+					c.ClearCookie("access", "refresh")
 					return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 						"message": "forbidden",
 					})
@@ -34,15 +39,16 @@ func SecureAuth() fiber.Handler {
 					})
 				} else {
 					// cannot handle this token
-					c.ClearCookie("access", "refresh_token")
+					c.ClearCookie("access", "refresh")
 					return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 						"message": "forbidden",
 					})
 				}
 			}
 		}
-
-		c.Locals("id", claims["id"])
+		var user models.User
+		db.Database.Db.Find(&user,"ID = ?",claims["iss"])
+		c.Locals("user",user)
 		return c.Next()
 	}
 }

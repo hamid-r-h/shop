@@ -1,7 +1,6 @@
 package cart
 
 import (
-	"log"
 	"shop/src/pkg/db"
 	"shop/src/pkg/models"
 
@@ -22,23 +21,13 @@ func AddToCart(c *fiber.Ctx) error {
 
 	var get_detail Products
 	var products models.Product
-	var user models.User
 	var user_products models.UserProduct
 	if err := c.BodyParser(&get_detail); err != nil {
 		return c.Status(400).JSON(err)
 	}
-	log.Println()
-	cookie := c.Cookies("access")
-	claims := jwt.MapClaims{}
-	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
+	user := c.Locals("user").(models.User)
 
-	claim := token.Claims.(jwt.MapClaims)
-	id := claim["id"]
-	if err != nil {
-
-	}
-
-	if tx := db.Database.Db.First(&user, "ID = ?", id); tx.RowsAffected == 0 {
+	if tx := db.Database.Db.First(&user, "ID = ?", user.ID); tx.RowsAffected == 0 {
 		return c.Status(400).JSON("first login")
 	}
 
@@ -52,7 +41,7 @@ func AddToCart(c *fiber.Ctx) error {
 	tmp_product = append(tmp_product, products)
 	user.Products = tmp_product
 	db.Database.Db.Save(&user)
-	if err := db.Database.Db.Find(&user_products, "user_id = ? And product_id = ?", id, products.ID).Error; err != nil {
+	if err := db.Database.Db.Find(&user_products, "user_id = ? And product_id = ?", user.ID, products.ID).Error; err != nil {
 		return c.Status(400).JSON(err)
 	}
 	user_products.Number = get_detail.Number
@@ -67,31 +56,24 @@ func DeleteFromCart(c *fiber.Ctx) error {
 
 	var products models.Product
 	var user_products models.UserProduct
-	var user models.User
 
 	product_id, err := c.ParamsInt("id")
-	cookie := c.Cookies("access")
-	claims := jwt.MapClaims{}
-	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
+	user := c.Locals("user").(models.User)
 	if err != nil {
 
 	}
-
-	claim := token.Claims.(jwt.MapClaims)
-	id := claim["id"]
-
-	if err := db.Database.Db.First(&user, "ID = ?", id).Error; err != nil {
+	if err := db.Database.Db.First(&user, "ID = ?", user.ID).Error; err != nil {
 		return c.Status(400).JSON("first login")
 	}
 	if err := db.Database.Db.First(&products, "ID = ?", product_id).Error; err != nil {
 		return c.Status(400).JSON("first login")
 	}
-	if err := db.Database.Db.Where("user_id = ? And product_id = ?", id, products.ID).Delete(&user_products); err != nil {
+	if err := db.Database.Db.Where("user_id = ? And product_id = ?", user.ID, products.ID).Delete(&user_products); err != nil {
 		return c.Status(400).JSON(err)
 
 	}
 
-	return c.Status(200).JSON("ok")
+	return c.Status(200).JSON("successfully deleted")
 
 }
 
@@ -99,7 +81,7 @@ func EditCart(c *fiber.Ctx) error {
 
 	var products models.Product
 	var user_products models.UserProduct
-	var user models.User
+	user := c.Locals("user").(models.User)
 
 	product_id, err := c.ParamsInt("productid")
 	number, err := c.ParamsInt("number")
@@ -108,23 +90,13 @@ func EditCart(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err)
 	}
 
-	cookie := c.Cookies("access")
-	claims := jwt.MapClaims{}
-	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
-	if err != nil {
-
-	}
-
-	claim := token.Claims.(jwt.MapClaims)
-	id := claim["id"]
-
-	if err := db.Database.Db.First(&user, "ID = ?", id).Error; err != nil {
+	if err := db.Database.Db.First(&user, "ID = ?", user.ID).Error; err != nil {
 		return c.Status(400).JSON("first login")
 	}
 	if err := db.Database.Db.First(&products, "ID = ?", product_id).Error; err != nil {
 		return c.Status(400).JSON("product is not exist")
 	}
-	if err := db.Database.Db.Find(&user_products, "user_id = ? And product_id = ?", id, products.ID).Error; err != nil {
+	if err := db.Database.Db.Find(&user_products, "user_id = ? And product_id = ?", user.ID, products.ID).Error; err != nil {
 		return c.Status(400).JSON(user_products)
 	}
 
@@ -137,27 +109,17 @@ func EditCart(c *fiber.Ctx) error {
 func GetCart(c *fiber.Ctx) error {
 
 	var user_products models.UserProduct
-	var user models.User
 
-	log.Println()
-	cookie := c.Cookies("access")
-	claims := jwt.MapClaims{}
-	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
-	if err != nil {
+	user := c.Locals("user").(models.User)
 
-	}
-
-	claim := token.Claims.(jwt.MapClaims)
-	id := claim["id"]
-
-	if err := db.Database.Db.First(&user, "ID = ?", id).Error; err != nil {
+	if err := db.Database.Db.First(&user, "ID = ?", user.ID).Error; err != nil {
 		return c.Status(400).JSON("first login")
 	}
 
-	if err := db.Database.Db.Find(&user_products, "user_id = ?", id).Error; err != nil {
+	if err := db.Database.Db.Find(&user_products, "user_id = ?", user.ID).Error; err != nil {
 		return c.Status(400).JSON("ypu have not product")
 	}
-	if err := db.Database.Db.Model(&models.User{}).Preload("Products").Find(&user, "ID = ? ", id).Error; err != nil {
+	if err := db.Database.Db.Model(&models.User{}).Preload("Products").Find(&user, "ID = ? ", user.ID).Error; err != nil {
 		return c.Status(400).JSON("ypu have not product")
 	}
 	GetAllProduct(db.Database.Db)

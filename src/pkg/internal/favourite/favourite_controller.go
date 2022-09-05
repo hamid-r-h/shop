@@ -13,32 +13,24 @@ const key = "secret"
 func AddToFavourite(c *fiber.Ctx) error {
 
 	var products models.Product
-	var user models.User
 	var user_favourites []models.Product
 	product_id, err := c.ParamsInt("productid")
-	cookie := c.Cookies("jwt")
-	claims := jwt.MapClaims{}
-	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
-
-	claim := token.Claims.(jwt.MapClaims)
-	id := claim["id"]
 	if err != nil {
 
 	}
 
-	if err := db.Database.Db.First(&user, "ID = ?", id).Error; err != nil {
-		return c.Status(400).JSON("first login")
-	}
+	user := c.Locals("user").(models.User)
 
 	if err := db.Database.Db.First(&products, "ID = ?", product_id).Error; err != nil {
 		return c.Status(400).JSON(err)
 	}
+
 	user_favourites = user.Favourites
 	user_favourites = append(user_favourites, products)
 	user.Favourites = user_favourites
 	db.Database.Db.Save(&user)
 
-	if err := db.Database.Db.Model(&models.User{}).Preload("Favourites").Find(&user, "ID = ? ", id).Error; err != nil {
+	if err := db.Database.Db.Model(&models.User{}).Preload("Favourites").Find(&user, "ID = ? ", user.ID).Error; err != nil {
 		return c.Status(400).JSON("ypu have not product")
 	}
 	return c.Status(200).JSON(user.Favourites)
@@ -46,27 +38,20 @@ func AddToFavourite(c *fiber.Ctx) error {
 }
 
 func RemoveFromFavourite(c *fiber.Ctx) error {
-
 	var products models.Product
-	var user models.User
 	product_id, err := c.ParamsInt("productid")
-	cookie := c.Cookies("jwt")
-	claims := jwt.MapClaims{}
-	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
+	user := c.Locals("user").(models.User)
 	if err != nil {
 
 	}
 
-	claim := token.Claims.(jwt.MapClaims)
-	id := claim["id"]
-
-	if err := db.Database.Db.First(&user, "ID = ?", id).Error; err != nil {
-		return c.Status(400).JSON("first login")
-	}
 	if err := db.Database.Db.First(&products, "ID = ?", product_id).Error; err != nil {
 		return c.Status(400).JSON(err)
 	}
 
+	if err := db.Database.Db.Model(&user).Where("product_id = ? ", product_id).Association("Favourites").Clear(); err != nil {
+		return c.Status(400).JSON(err)
+	}
 	return c.Status(200).JSON(user)
 
 }
@@ -74,3 +59,4 @@ func RemoveFromFavourite(c *fiber.Ctx) error {
 func keyFunc(*jwt.Token) (interface{}, error) {
 	return []byte(key), nil
 }
+

@@ -4,7 +4,6 @@ import (
 	"shop/src/pkg/db"
 	"shop/src/pkg/utils/hash"
 	"shop/src/pkg/utils/jwt_handler"
-	"time"
 
 	"shop/src/pkg/models"
 
@@ -35,21 +34,16 @@ func Register(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(400).JSON(err)
 	}
-	token, err := jwt_handler.GenerateAccessToken(user.ID)
-	if err != nil {
-		return c.Status(400).JSON(err)
-	}
-	cookie := fiber.Cookie{
-		Name:     "access",
-		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 24),
-		HTTPOnly: false,
-	}
 
-	c.Cookie(&cookie)
 	if err := db.Database.Db.Create(&user); err.Error != nil {
 		return c.Status(200).JSON("already taken")
 	}
+	access_token, refresh_token, err := jwt_handler.SetCookie(user.ID)
+	if err != nil {
+		c.Status(400).JSON(err)
+	}
+	c.Cookie(&access_token)
+	c.Cookie(&refresh_token)
 
 	return c.Status(200).JSON(user)
 
@@ -73,19 +67,12 @@ func Login(c *fiber.Ctx) error {
 	if !check {
 		return c.Status(400).JSON("password incorrect")
 	}
-	token, err := jwt_handler.GenerateAccessToken(user.ID)
+	access_token, refresh_token, err := jwt_handler.SetCookie(user.ID)
 	if err != nil {
-		return c.Status(400).JSON(err)
+		c.Status(400).JSON(err)
 	}
-
-	cookie := fiber.Cookie{
-		Name:     "access",
-		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 24),
-		HTTPOnly: false,
-	}
-
-	c.Cookie(&cookie)
+	c.Cookie(&access_token)
+	c.Cookie(&refresh_token)
 	return c.Status(200).JSON(user)
 
 }

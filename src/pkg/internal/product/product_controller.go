@@ -12,9 +12,7 @@ import (
 const key = "hamid123456789"
 
 func AddProduct(c *fiber.Ctx) error {
-
 	var product models.Product
-	var user models.User
 	if err := c.BodyParser(&product); err != nil {
 		return c.Status(400).JSON("sure about input")
 	}
@@ -24,14 +22,10 @@ func AddProduct(c *fiber.Ctx) error {
 		return c.Status(400).JSON("input in correct format")
 	}
 
-	cookie := c.Cookies("jwt")
-	claims := jwt.MapClaims{}
-	token, err := jwt.ParseWithClaims(cookie, claims, keyFunc)
-	claim := token.Claims.(jwt.MapClaims)
-	id := claim["id"]
+	user := c.Locals("user").(models.User)
 
-	if err := db.Database.Db.First(&user, "ID = ? And has_access = ? ", id, true).Error; err != nil {
-		return c.Status(400).JSON("you have not access")
+	if !user.HasAccess {
+		return c.Status(400).JSON(err)
 	}
 
 	if err := db.Database.Db.First(&product, "name = ?", product.Name).Error; err == nil {
@@ -72,9 +66,23 @@ func GetBySubCategory(c *fiber.Ctx) error {
 	category := c.Params("category")
 	subcategory := c.Params("subcategory")
 	var products []models.Product
-	if err := db.Database.Db.Find(&products, "category = ? And sub_category = ?", category, subcategory).Error; err != nil {
-		return c.Status(400).JSON("err")
+	if err := db.Database.Db.Find(&products, "category = ? And subcategory = ?", category, subcategory).Error; err != nil {
+		return c.Status(400).JSON(err)
 	}
 	return c.Status(200).JSON(products)
 }
+func GetByName(c *fiber.Ctx) error {
+	var product models.Product
+	var product_name ProductName
+	if err := c.BodyParser(&product_name.Name); err != nil {
+		c.Status(400).JSON(err)
+	}
+	if err := db.Database.Db.Find(&product, "name = ?", product_name.Name).Error; err != nil {
+		return c.Status(400).JSON(err)
+	}
+	return c.Status(200).JSON(product)
+}
 
+type ProductName struct {
+	Name string
+}
