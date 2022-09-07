@@ -35,7 +35,6 @@ func AddProduct(c *fiber.Ctx) error {
 	if product.Category != "mobile" && product.Category != "laptop" {
 		return c.Status(400).JSON(product.Category)
 	}
-	product.UserID = user.ID
 	if err := db.Database.Db.Create(&product).Error; err != nil {
 		return c.Status(400).JSON(err)
 	}

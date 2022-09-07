@@ -14,7 +14,7 @@ func GenerateAccessToken(id uint) (string, error) {
 
 	claims := jwt.MapClaims{}
 
-	claims["exp"] = jwt.NewNumericDate(time.Unix(time.Now().Add(time.Second*5).Unix(), 0))
+	claims["exp"] = jwt.NewNumericDate(time.Unix(time.Now().Add(time.Minute*5).Unix(), 0))
 	claims["iss"] = id
 	new_claim := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
@@ -30,7 +30,7 @@ func GenerateRefreshToken(id uint) (string, error) {
 
 	claims := jwt.MapClaims{}
 
-	claims["exp"] = jwt.NewNumericDate(time.Unix(time.Now().Add(time.Second*24).Unix(), 0))
+	claims["exp"] = jwt.NewNumericDate(time.Unix(time.Now().Add(time.Hour*24).Unix(), 0))
 	claims["iss"] = id
 	new_claim := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 

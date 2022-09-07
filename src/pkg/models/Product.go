@@ -10,6 +10,6 @@ type Product struct {
 	SubCategory string ` valid:"required"`
 	Name        string ` valid:"required" gorm:"unique"   `
 	Price       int    ` valid:"required"`
-	Number      int	   ` valid:"required"`
-	UserID      uint
+	Comments  []Comment  `valid:"-"  gorm:"many2many:product_comments;"`
+	Number      int    ` valid:"required"`
 }

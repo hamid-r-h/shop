@@ -26,7 +26,7 @@ func Register(c *fiber.Ctx) error {
 	}
 	_, err := govalidator.ValidateStruct(user)
 	if err != nil {
-		return c.Status(400).JSON(err)
+		return c.Status(400).JSON("please input in correct format")
 	}
 
 	password, err := hash.HashPassword(user.Password)
@@ -50,20 +50,20 @@ func Register(c *fiber.Ctx) error {
 }
 
 func Login(c *fiber.Ctx) error {
-	var userinput User
+	var user_data User
 	var user models.User
-	if err := c.BodyParser(&userinput); err != nil {
+	if err := c.BodyParser(&user_data); err != nil {
 		return c.Status(400).JSON("please sure about input")
 	}
-	_, err := govalidator.ValidateStruct(userinput)
+	_, err := govalidator.ValidateStruct(user_data)
 	if err != nil {
-		return c.Status(fiber.StatusBadRequest).JSON("please input in  format")
+		return c.Status(fiber.StatusBadRequest).JSON("please input in correct format")
 	}
 
-	if err := db.Database.Db.First(&user, "username = ?", userinput.Username).Error; err != nil {
+	if err := db.Database.Db.First(&user, "username = ?", user_data.Username).Error; err != nil {
 		return c.Status(400).JSON(err)
 	}
-	check := hash.CheckPasswordHash(userinput.Password, user.Password)
+	check := hash.CheckPasswordHash(user_data.Password, user.Password)
 	if !check {
 		return c.Status(400).JSON("password incorrect")
 	}

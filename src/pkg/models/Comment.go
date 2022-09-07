@@ -6,5 +6,8 @@ import (
 
 type Comment struct {
 	gorm.Model
-	Description string `json:"desc"`
+	Description   string   `json:"description"  valid:"required"`
+	ReplyID       *uint
+	Reply	     []Comment `valid:"-"  gorm:"foreignkey:ReplyID"`
+	UserID         uint
 }

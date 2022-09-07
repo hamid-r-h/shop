@@ -21,7 +21,7 @@ func AddToFavourite(c *fiber.Ctx) error {
 
 	user := c.Locals("user").(models.User)
 
-	if err := db.Database.Db.First(&products, "ID = ?", product_id).Error; err != nil {
+	if err := db.Database.Db.First(&products, "id = ?", product_id).Error; err != nil {
 		return c.Status(400).JSON(err)
 	}
 
@@ -30,7 +30,7 @@ func AddToFavourite(c *fiber.Ctx) error {
 	user.Favourites = user_favourites
 	db.Database.Db.Save(&user)
 
-	if err := db.Database.Db.Model(&models.User{}).Preload("Favourites").Find(&user, "ID = ? ", user.ID).Error; err != nil {
+	if err := db.Database.Db.Model(&models.User{}).Preload("Favourites").Find(&user, "id = ? ", user.ID).Error; err != nil {
 		return c.Status(400).JSON("ypu have not product")
 	}
 	return c.Status(200).JSON(user.Favourites)
@@ -45,7 +45,7 @@ func RemoveFromFavourite(c *fiber.Ctx) error {
 
 	}
 
-	if err := db.Database.Db.First(&products, "ID = ?", product_id).Error; err != nil {
+	if err := db.Database.Db.First(&products, "id = ?", product_id).Error; err != nil {
 		return c.Status(400).JSON(err)
 	}
 
