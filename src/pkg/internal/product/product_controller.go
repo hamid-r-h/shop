@@ -1,7 +1,9 @@
 package product
 
 import (
+	// "encoding/json"
 	"shop/src/pkg/db"
+	"shop/src/pkg/internal/pagination"
 	"shop/src/pkg/models"
 
 	"github.com/asaskevich/govalidator"
@@ -16,7 +18,6 @@ func AddProduct(c *fiber.Ctx) error {
 	if err := c.BodyParser(&product); err != nil {
 		return c.Status(400).JSON("sure about input")
 	}
-
 	_, err := govalidator.ValidateStruct(product)
 	if err != nil {
 		return c.Status(400).JSON("input in correct format")
@@ -39,34 +40,41 @@ func AddProduct(c *fiber.Ctx) error {
 		return c.Status(400).JSON(err)
 	}
 	return c.Status(200).JSON(product)
-
 }
 func keyFunc(*jwt.Token) (interface{}, error) {
 	return []byte(key), nil
 }
 
 func GetAllProduct(c *fiber.Ctx) error {
-	var products []models.Product
-	if err := db.Database.Db.Find(&products); err != nil {
-		c.Status(400).JSON(err)
+	pagination_model := pagination.GeneratePagInation(c)
+	category:="all"
+	subcategory:="all"
+	products, ok := pagination.GetProduct(&pagination_model,category,subcategory)
+	if ok != "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ok)
 	}
-	return c.Status(200).JSON(products)
+	return c.Status(400).JSON(products)
+
 }
 
 func GetByCategory(c *fiber.Ctx) error {
 	category := c.Params("category")
-	var products []models.Product
-	if err := db.Database.Db.Find(&products, "category = ?", category).Error; err != nil {
-		return c.Status(400).JSON(err)
+	pagination_model := pagination.GeneratePagInation(c)
+	subcategory := "all"
+	products, ok := pagination.GetProduct(&pagination_model, category, subcategory)
+	if ok != "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ok)
 	}
 	return c.Status(200).JSON(products)
 }
+
 func GetBySubCategory(c *fiber.Ctx) error {
 	category := c.Params("category")
 	subcategory := c.Params("subcategory")
-	var products []models.Product
-	if err := db.Database.Db.Find(&products, "category = ? And subcategory = ?", category, subcategory).Error; err != nil {
-		return c.Status(400).JSON(err)
+	pagination_model := pagination.GeneratePagInation(c)
+	products, ok := pagination.GetProduct(&pagination_model, category, subcategory)
+	if ok != "" {
+		return c.Status(fiber.StatusBadRequest).JSON(ok)
 	}
 	return c.Status(200).JSON(products)
 }
